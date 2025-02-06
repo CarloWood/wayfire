@@ -203,6 +203,7 @@ configure_file(input: 'config.h.in',
                install_dir: join_paths('include', 'wayfire'),
                configuration: conf_data)
 
+subdir('aicxx')
 subdir('proto')
 subdir('src')
 subdir('man')

@@ -126,7 +126,7 @@ tests_include_dirs = include_directories('.')
 
 # Generate main executable
 executable('wayfire', ['main.cpp', git_commit_info, git_branch_info],
-    dependencies: libwayfire,
+    dependencies: [aicxx, libwayfire],
     install: true,
     cpp_args: debug_arguments)
 

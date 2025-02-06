@@ -16,6 +16,8 @@
 #include "core/core-impl.hpp"
 #include <wayfire/nonstd/wlroots.hpp>
 
+#include "debug.h"
+
 static void print_version()
 {
     std::cout << WAYFIRE_VERSION << "-" << wf::version::git_commit <<
@@ -263,6 +265,8 @@ void parse_extended_debugging(const std::vector<std::string>& categories)
 //
 int main(int argc, char *argv[])
 {
+    Debug(NAMESPACE_DEBUG::init());
+
     wf::log::log_level_t log_level = wf::log::LOG_LEVEL_INFO;
     struct option opts[] = {
         {
