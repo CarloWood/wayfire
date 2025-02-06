@@ -1,4 +1,4 @@
-dependencies = [wlroots, pixman, wfconfig]
+dependencies = [aicxx_interface, wlroots, pixman, wfconfig]
 
 if get_option('enable_openmp')
    dependencies += [dependency('openmp')]

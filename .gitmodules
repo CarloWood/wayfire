@@ -10,3 +10,6 @@
 [submodule "subprojects/wf-touch"]
 	path = subprojects/wf-touch
 	url = https://github.com/WayfireWM/wf-touch
+[submodule "subprojects/aicxx"]
+	path = subprojects/aicxx
+	url = github-carlo:CarloWood/wayfire-aicxx.git
