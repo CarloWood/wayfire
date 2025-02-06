@@ -55,6 +55,7 @@
 # subproject directories
 /subprojects/*
 !/subprojects/*.wrap
+!/subprojects/aicxx
 
 ### Ninja ###
 .ninja_deps

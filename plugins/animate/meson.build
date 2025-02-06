@@ -1,4 +1,4 @@
-dependencies = [wlroots, pixman, wfconfig]
+dependencies = [aicxx_interface, wlroots, pixman, wfconfig]
 animate_pch_deps = [plugin_pch_dep]
 
 if get_option('enable_openmp')

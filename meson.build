@@ -212,6 +212,7 @@ else
   has_asan = false
 endif
 
+subdir('aicxx')
 subdir('proto')
 subdir('src')
 subdir('man')

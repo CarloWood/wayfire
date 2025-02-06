@@ -10,6 +10,8 @@
 #include "wayfire/plugin.hpp"
 #include <wayfire/util/log.hpp>
 
+#include "debug.h"
+
 wf::plugin_manager_t::plugin_manager_t()
 {
     this->plugins_opt.load_option("core/plugins");
@@ -249,6 +251,8 @@ void wf::plugin_manager_t::reload_dynamic_plugins()
     {
         return a.second.instance->get_order_hint() < b.second.instance->get_order_hint();
     });
+
+    Debug(libcwd::rcfile.read());
 
     for (auto& [plugin, ptr] : pending_initialize)
     {

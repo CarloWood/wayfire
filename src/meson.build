@@ -62,7 +62,7 @@ wayfire_sources = ['geometry.cpp',
                    'output/workspace-stream.cpp',
                    'output/workspace-impl.cpp']
 
-wayfire_dependencies = [wayland_server, wlroots, xkbcommon, libinput,
+wayfire_dependencies = [aicxx_interface, wayland_server, wlroots, xkbcommon, libinput,
                        pixman, drm, egl, glesv2, glm, wf_protos, libdl,
                        wfconfig, libinotify, backtrace, wfutils, xcb,
                        wftouch, json, udev]
@@ -120,13 +120,13 @@ libwayfire_sta = static_library('libwayfire', wayfire_sources,
 
 libwayfire = declare_dependency(link_whole: libwayfire_sta,
     include_directories: [wayfire_conf_inc, wayfire_api_inc],
-    dependencies: wayfire_dependencies)
+    dependencies: [aicxx, wayfire_dependencies])
 
 tests_include_dirs = include_directories('.')
 
 # Generate main executable
 executable('wayfire', ['main.cpp', git_commit_info, git_branch_info],
-    dependencies: libwayfire,
+    dependencies: [aicxx, libwayfire],
     install: true,
     cpp_args: debug_arguments)
 

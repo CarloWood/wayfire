@@ -10,6 +10,16 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include "debug.h"
+#ifdef CWDEBUG
+NAMESPACE_DEBUG_CHANNELS_START
+channel_ct ipc("PLUGIN-IPC");
+NAMESPACE_DEBUG_CHANNELS_END
+#include "libcwd/buf2str.h"
+#include "debug_ostream_operators.h"
+#endif
+
+
 /**
  * Handle WL_EVENT_READABLE on the socket.
  * Indicates a new connection.
