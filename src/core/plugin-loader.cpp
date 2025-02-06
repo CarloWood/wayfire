@@ -222,6 +222,10 @@ void wf::plugin_manager_t::reload_dynamic_plugins()
         return a.second.instance->get_order_hint() < b.second.instance->get_order_hint();
     });
 
+#ifdef CWDEBUG
+    Debug(if (!dc::notice.is_on()) dc::notice.on());
+#endif
+
     for (auto& [plugin, ptr] : pending_initialize)
     {
         ptr.instance->init();
