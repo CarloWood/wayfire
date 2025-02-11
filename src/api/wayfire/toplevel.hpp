@@ -3,6 +3,7 @@
 #include <optional>
 #include "wayfire/geometry.hpp"
 #include "wayfire/object.hpp"
+#include "wayfire/maximization.hpp"
 #include <wayfire/txn/transaction-object.hpp>
 
 namespace wf
@@ -42,15 +43,22 @@ struct toplevel_state_t
      */
     uint32_t gravity = WLR_EDGE_LEFT | WLR_EDGE_TOP;
 
+  private: // Temporary access control to understand who is touching this.
+    friend class toplevel_view_interface_t;
+    friend class ::wayfire_resize;
+    friend class ::wayfire_decoration;
+    friend class wf::grid::grid_animation_t;
+    friend class wf::tile::view_node_t;
     /**
      * The tiled edges of the toplevel.
      * Tiled edges are edges of the toplevel that are aligned to other objects (output edge, other toplevels,
      * etc.). Clients usually draw no shadows, rounded corners and similar decorations on tiled edges.
      *
-     * Usually, when all edges are tiled, the toplevel is considered maximized.
+     * When two opposing edges are tiled, the toplevel is considered maximized in that direction.
      */
     uint32_t tiled_edges = 0;
 
+  public:
     /**
      * The fullscreen state of the view. Fullscreen clients are typically shown above panels and take up the
      * full size of their primary output.
@@ -66,6 +74,63 @@ struct toplevel_state_t
      * finalized before the view is actually committed.
      */
     decoration_margins_t margins = {0, 0, 0, 0};
+
+  public:
+    /**
+     * Extract maximization state from tiled_edges.
+     */
+    operator maximization_t() const
+    {
+        return {tiled_edges};
+    }
+
+    /**
+     * Convert a maximization_t to tiled_edges.
+     */
+    toplevel_state_t& operator =(maximization_t maximization)
+    {
+        tiled_edges = maximization.as_tiled_edges();
+        return *this;
+    }
+
+    /**
+     * Compare toplevel_state_t object directly with a maximization_t.
+     */
+    bool operator <(maximization_t maximization) const
+    {
+        return maximization_t{tiled_edges} < maximization;
+    }
+
+    bool operator >=(maximization_t maximization) const
+    {
+        return maximization_t{tiled_edges} >= maximization;
+    }
+
+    bool operator ==(maximization_t maximization) const
+    {
+        return maximization_t{tiled_edges} == maximization;
+    }
+
+    bool operator !=(maximization_t maximization) const
+    {
+        return maximization_t{tiled_edges} != maximization;
+    }
+
+    /**
+     * Accessors (needed as long as tiled_edges is private).
+     */
+    uint32_t get_tiled_edges() const
+    {
+        return tiled_edges;
+    }
+
+    /**
+     * Access control (needed as long as tiled_edges is private).
+     */
+    void set_tiled_edges(uint32_t tiled_edges)
+    {
+        this->tiled_edges = tiled_edges;
+    }
 };
 
 /**
@@ -144,21 +209,49 @@ inline wf::dimensions_t shrink_dimensions_by_margins(wf::dimensions_t dim,
     return dim;
 }
 
-inline wf::geometry_t expand_geometry_by_margins(wf::geometry_t geometry, const decoration_margins_t& margins)
+/**
+ * Expand unless maximization contains the direction.
+ *
+ * The default expands both directions.
+ */
+inline wf::geometry_t expand_geometry_by_margins(wf::geometry_t geometry, const decoration_margins_t& margins,
+    maximization_t maximization = maximization_t::none)
 {
-    geometry.x     -= margins.left;
-    geometry.y     -= margins.top;
-    geometry.width += margins.left + margins.right;
-    geometry.height += margins.top + margins.bottom;
+    if (maximization < maximization_t::vertical)
+    {
+        geometry.y -= margins.top;
+        geometry.height += margins.top + margins.bottom;
+    }
+
+    if (maximization < maximization_t::horizontal)
+    {
+        geometry.x     -= margins.left;
+        geometry.width += margins.left + margins.right;
+    }
+
     return geometry;
 }
 
-inline wf::geometry_t shrink_geometry_by_margins(wf::geometry_t geometry, const decoration_margins_t& margins)
+/**
+ * Shrink unless maximization contains the direction.
+ *
+ * The default shrinks both directions.
+ */
+inline wf::geometry_t shrink_geometry_by_margins(wf::geometry_t geometry, const decoration_margins_t& margins,
+    maximization_t maximization = maximization_t::none)
 {
-    geometry.x     += margins.left;
-    geometry.y     += margins.top;
-    geometry.width -= margins.left + margins.right;
-    geometry.height -= margins.top + margins.bottom;
+    if (maximization < maximization_t::vertical)
+    {
+        geometry.y += margins.top;
+        geometry.height -= margins.top + margins.bottom;
+    }
+
+    if (maximization < maximization_t::horizontal)
+    {
+        geometry.x     += margins.left;
+        geometry.width -= margins.left + margins.right;
+    }
+
     return geometry;
 }
 }
