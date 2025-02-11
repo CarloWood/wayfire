@@ -116,12 +116,12 @@ void wf::view_implementation::emit_toplevel_state_change_signals(wayfire_topleve
         emit_geometry_changed_signal(view, old_state.geometry);
     }
 
-    if (view->toplevel()->current().tiled_edges != old_state.tiled_edges)
+    if (view->toplevel()->current().get_tiled_edges() != old_state.get_tiled_edges())
     {
         wf::view_tiled_signal data;
         data.view = view;
-        data.old_edges = old_state.tiled_edges;
-        data.new_edges = view->toplevel()->current().tiled_edges;
+        data.old_edges = old_state.get_tiled_edges();
+        data.new_edges = view->toplevel()->current().get_tiled_edges();
 
         view->emit(&data);
         wf::get_core().emit(&data);
@@ -449,15 +449,18 @@ void wf::adjust_view_pending_geometry_on_start_map(wf::toplevel_view_interface_t
         wf::get_core().default_wm->fullscreen_request(self, self->get_output(), true);
     } else if (map_maximized)
     {
-        self->toplevel()->pending().tiled_edges = wf::TILED_EDGES_ALL;
+        // TODO: what about partial maximization?
+        self->toplevel()->pending() = maximization_t::full;
         if (self->get_output())
         {
             self->toplevel()->pending().geometry = self->get_output()->workarea->get_workarea();
         }
     } else
     {
+        // TODO: at the moment we are assuming that we're not unidirectional maximized at this point.
+        // Therefore, not vertically and also not horizontally.
         auto map_geometry = wf::expand_geometry_by_margins(map_geometry_client,
-            self->toplevel()->pending().margins);
+            self->toplevel()->pending().margins, maximization_t::none);
 
         if (self->get_output())
         {

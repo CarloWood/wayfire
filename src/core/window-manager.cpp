@@ -219,7 +219,7 @@ void window_manager_t::tile_request(wayfire_toplevel_view view,
         get_last_windowed_geometry(view).value_or(wf::geometry_t{0, 0, -1, -1});
 
     update_last_windowed_geometry(view);
-    view->toplevel()->pending().tiled_edges = tiled_edges;
+    view->toplevel()->pending().set_tiled_edges(tiled_edges);
     if (view->is_mapped())
     {
         view->get_output()->emit(&data);

@@ -41,7 +41,7 @@ void wf::xdg_toplevel_t::commit()
     this->pending_ready = true;
     _committed = _pending;
     LOGC(TXNI, this, ": committing toplevel state mapped=", _pending.mapped,
-        " geometry=", _pending.geometry, " tiled=", _pending.tiled_edges, " fs=", _pending.fullscreen,
+        " geometry=", _pending.geometry, " tiled=", _pending.get_tiled_edges(), " fs=", _pending.fullscreen,
         " margins=", _pending.margins.left, ",", _pending.margins.right, ",",
         _pending.margins.top, ",", _pending.margins.bottom);
 
@@ -74,19 +74,21 @@ void wf::xdg_toplevel_t::commit()
         this->target_configure = wlr_xdg_toplevel_set_size(this->toplevel, configure_width, configure_height);
     }
 
-    if (_current.tiled_edges != _pending.tiled_edges)
+    if (_current.get_tiled_edges() != _pending.get_tiled_edges())
     {
         wait_for_client = true;
-        wlr_xdg_toplevel_set_tiled(this->toplevel, _pending.tiled_edges);
+        wlr_xdg_toplevel_set_tiled(this->toplevel, _pending.get_tiled_edges());
 
         auto version = wl_resource_get_version(toplevel->resource);
         if (version >= XDG_TOPLEVEL_STATE_TILED_LEFT_SINCE_VERSION)
         {
+            // TODO: support unidirectional maximization.
             this->target_configure =
-                wlr_xdg_toplevel_set_maximized(this->toplevel, (_pending.tiled_edges == TILED_EDGES_ALL));
+                wlr_xdg_toplevel_set_maximized(this->toplevel, _pending == maximization_t::full);
         } else
         {
-            this->target_configure = wlr_xdg_toplevel_set_maximized(this->toplevel, !!_pending.tiled_edges);
+            this->target_configure = wlr_xdg_toplevel_set_maximized(this->toplevel,
+                !!_pending.get_tiled_edges());
         }
     }
 
