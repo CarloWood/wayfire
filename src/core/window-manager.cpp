@@ -12,6 +12,11 @@
 #include <wayfire/view-helpers.hpp>
 #include <wayfire/seat.hpp>
 
+#include "debug.h"
+#ifdef CWDEBUG
+#include "debug_ostream_operators.h"
+#endif
+
 namespace wf
 {
 class windowed_geometry_data_t : public wf::custom_data_t
@@ -204,6 +209,8 @@ static void move_to_workspace(wayfire_toplevel_view view, wf::point_t workspace)
 void window_manager_t::tile_request(wayfire_toplevel_view view,
     uint32_t tiled_edges, std::optional<wf::point_t> ws)
 {
+    DoutEntering(dc::notice|flush_cf, "window_manager_t::tile_request(view, " << tiled_edges_to_string(tiled_edges) << ", ws)");
+
     if (view->pending_fullscreen() || !view->get_output())
     {
         return;
