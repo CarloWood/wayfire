@@ -169,6 +169,8 @@ wf::ipc::client_t::client_t(server_t *ipc, int fd)
 // -1 error, 0 success, 1 try again later
 int wf::ipc::client_t::read_up_to(int n, int *available)
 {
+    DoutEntering(dc::ipc|continued_cf, "wf::ipc::client_t::read_up_to(" << n << ", &{" << *available << "}) = ");
+
     int need = n - current_buffer_valid;
     int want = std::min(need, *available);
 
@@ -178,8 +180,10 @@ int wf::ipc::client_t::read_up_to(int n, int *available)
         if (r <= 0)
         {
             LOGI("Read: EOF or error (%d) %s\n", r, strerror(errno));
+            Dout(dc::finish, -1);
             return -1;
         }
+        Dout(dc::ipc, "read: 《" << libcwd::buf2str(buffer.data() + current_buffer_valid, r) << "》(" << r << " bytes)");
 
         want -= r;
         *available -= r;
@@ -189,9 +193,11 @@ int wf::ipc::client_t::read_up_to(int n, int *available)
     if (current_buffer_valid < n)
     {
         // didn't read all n bytes
+        Dout(dc::finish, 1);
         return 1;
     }
 
+    Dout(dc::finish, 0);
     return 0;
 }
 
@@ -280,6 +286,8 @@ wf::ipc::client_t::~client_t()
 
 static bool write_exact(int fd, char *buf, ssize_t n)
 {
+    DoutEntering(dc::ipc, "write_exact(" << fd << ", 《" << libcwd::buf2str(buf, n) << "》, " << n << ")");
+
     while (n > 0)
     {
         ssize_t w = write(fd, buf, n);
