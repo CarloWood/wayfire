@@ -33,6 +33,8 @@ class windowed_geometry_data_t : public wf::custom_data_t
 
 void wf::window_manager_t::update_last_windowed_geometry(wayfire_toplevel_view view)
 {
+    DoutEntering(dc::notice, "wf::window_manager_t::update_last_windowed_geometry(view)");
+
     if (!view->is_mapped() || view->pending_tiled_edges() || view->pending_fullscreen())
     {
         return;
