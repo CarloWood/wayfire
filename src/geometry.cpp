@@ -11,6 +11,14 @@ std::ostream& operator <<(std::ostream& stream, const wf::geometry_t& geometry)
     return stream;
 }
 
+std::ostream& wf::operator <<(std::ostream& stream, const wf::rectangle_t& rectangle)
+{
+    stream << '{' << rectangle.x1 << ',' << rectangle.y1 <<
+        ' ' << rectangle.x2 << ',' << rectangle.y2 << '}';
+
+    return stream;
+}
+
 std::ostream& wf::operator <<(std::ostream& stream, const wf::point_t& point)
 {
     stream << '(' << point.x << ',' << point.y << ')';

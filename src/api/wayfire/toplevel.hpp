@@ -3,7 +3,6 @@
 #include <optional>
 #include "wayfire/geometry.hpp"
 #include "wayfire/object.hpp"
-#include "wayfire/maximization.hpp"
 #include <wayfire/txn/transaction-object.hpp>
 
 namespace wf
@@ -11,13 +10,7 @@ namespace wf
 /**
  * Describes the size of the decoration frame around a toplevel.
  */
-struct decoration_margins_t
-{
-    int left;
-    int right;
-    int bottom;
-    int top;
-};
+using decoration_margins_t = geometry_difference_t;
 
 struct toplevel_state_t
 {
@@ -192,9 +185,35 @@ class toplevel_t : public wf::txn::transaction_object_t, public wf::object_base_
     toplevel_state_t _committed;
 };
 
-// Helper functions when working with toplevel state
+/**
+ * Expand unless maximization contains the direction.
+ *
+ * The default expands both directions.
+ */
+inline geometry_t expand_geometry_by_margins(geometry_t geometry, geometry_difference_t const& margins,
+    maximization_t maximization = maximization_t::none)
+{
+    return expand_geometry_if(geometry, maximization.as_tiled_edges(), margins);
+}
+
+/**
+ * Shrink unless maximization contains the direction.
+ *
+ * The default shrinks both directions.
+ *
+ * The same as expand, but with negated margins.
+ */
+inline geometry_t shrink_geometry_by_margins(geometry_t geometry, geometry_difference_t const& margins,
+    maximization_t maximization = maximization_t::none)
+{
+    return expand_geometry_if(geometry, maximization.as_tiled_edges(), -margins);
+}
+
+/**
+ * Helper functions when working with toplevel state.
+ */
 inline wf::dimensions_t expand_dimensions_by_margins(wf::dimensions_t dim,
-    const decoration_margins_t& margins)
+    const geometry_difference_t& margins)
 {
     dim.width  += margins.left + margins.right;
     dim.height += margins.top + margins.bottom;
@@ -202,56 +221,10 @@ inline wf::dimensions_t expand_dimensions_by_margins(wf::dimensions_t dim,
 }
 
 inline wf::dimensions_t shrink_dimensions_by_margins(wf::dimensions_t dim,
-    const decoration_margins_t& margins)
+    const geometry_difference_t& margins)
 {
     dim.width  -= margins.left + margins.right;
     dim.height -= margins.top + margins.bottom;
     return dim;
 }
-
-/**
- * Expand unless maximization contains the direction.
- *
- * The default expands both directions.
- */
-inline wf::geometry_t expand_geometry_by_margins(wf::geometry_t geometry, const decoration_margins_t& margins,
-    maximization_t maximization = maximization_t::none)
-{
-    if (maximization < maximization_t::vertical)
-    {
-        geometry.y -= margins.top;
-        geometry.height += margins.top + margins.bottom;
-    }
-
-    if (maximization < maximization_t::horizontal)
-    {
-        geometry.x     -= margins.left;
-        geometry.width += margins.left + margins.right;
-    }
-
-    return geometry;
-}
-
-/**
- * Shrink unless maximization contains the direction.
- *
- * The default shrinks both directions.
- */
-inline wf::geometry_t shrink_geometry_by_margins(wf::geometry_t geometry, const decoration_margins_t& margins,
-    maximization_t maximization = maximization_t::none)
-{
-    if (maximization < maximization_t::vertical)
-    {
-        geometry.y += margins.top;
-        geometry.height -= margins.top + margins.bottom;
-    }
-
-    if (maximization < maximization_t::horizontal)
-    {
-        geometry.x     += margins.left;
-        geometry.width -= margins.left + margins.right;
-    }
-
-    return geometry;
-}
-}
+} // namespace wf

@@ -151,9 +151,7 @@ class wayfire_xwayland_view : public wf::toplevel_view_interface_t, public wayfi
             configure_geometry = wf::clamp(configure_geometry, view_workarea);
         }
 
-        configure_geometry = wf::expand_geometry_by_margins(configure_geometry,
-            toplevel->pending().margins, wf::maximization_t::none);
-        set_geometry(configure_geometry);
+        set_geometry(configure_geometry + toplevel->pending().margins);
     }
 
     wf::signal::connection_t<wf::xw::xwayland_toplevel_applied_state_signal> on_toplevel_applied =
