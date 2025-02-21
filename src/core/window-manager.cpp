@@ -211,6 +211,14 @@ void window_manager_t::tile_request(wayfire_toplevel_view view,
 
     const wf::point_t workspace = ws.value_or(view->get_output()->wset()->get_current_workspace());
 
+#if 0
+    view_tile_request_signal data;
+    data.view  = view;
+    data.edges = tiled_edges;
+    data.workspace    = workspace;
+    data.desired_size = tiled_edges ? view->get_output()->workarea->get_workarea() :
+        get_last_windowed_geometry(view).value_or(wf::geometry_t{0, 0, -1, -1});
+#else
     // Handle partial maximization.
 
     wf::geometry_t const current_geometry = view->get_pending_geometry();
@@ -239,6 +247,7 @@ void window_manager_t::tile_request(wayfire_toplevel_view view,
     desired_size = geometry_switch_if(tiled_edges, workarea_geometry, desired_size);
 
     view_tile_request_signal data{view, tiled_edges, desired_size, workspace};
+#endif
 
     update_last_windowed_geometry(view);
     view->toplevel()->pending().set_tiled_edges(tiled_edges);
