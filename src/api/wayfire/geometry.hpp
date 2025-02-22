@@ -203,11 +203,15 @@ inline geometry_difference_t operator -(geometry_t const& to, geometry_t const& 
 /**
  * Conditionally expand (or shrink in case of negative values) each edge with
  * the displacement given by delta OR tiled_edge_delta, as a function of `tiled_edges`.
+ *
+ * If the corresponding WLR_EDGE_* bit is set in `tiled_edges` then `tiled_edge_delta`
+ * is used, otherwise `delta` is used. The order of the arguments has been chosen
+ * to match `tiled_edges ? tiled_edge_delta : delta`.
  */
 inline geometry_t expand_geometry_if(geometry_t geometry_in,
     uint32_t tiled_edges,
     geometry_difference_t const& tiled_edge_delta,
-    geometry_difference_t const& delta = {})
+    geometry_difference_t const& delta)
 {
     rectangle_t rectangle{geometry_in};
 

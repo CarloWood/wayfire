@@ -193,7 +193,7 @@ class toplevel_t : public wf::txn::transaction_object_t, public wf::object_base_
 inline geometry_t expand_geometry_by_margins(geometry_t geometry, geometry_difference_t const& margins,
     maximization_t maximization = maximization_t::none)
 {
-    return expand_geometry_if(geometry, maximization.as_tiled_edges(), margins);
+    return expand_geometry_if(geometry, maximization.as_tiled_edges(), {}, margins);
 }
 
 /**
@@ -206,7 +206,7 @@ inline geometry_t expand_geometry_by_margins(geometry_t geometry, geometry_diffe
 inline geometry_t shrink_geometry_by_margins(geometry_t geometry, geometry_difference_t const& margins,
     maximization_t maximization = maximization_t::none)
 {
-    return expand_geometry_if(geometry, maximization.as_tiled_edges(), -margins);
+    return expand_geometry_if(geometry, maximization.as_tiled_edges(), {}, -margins);
 }
 
 /**
