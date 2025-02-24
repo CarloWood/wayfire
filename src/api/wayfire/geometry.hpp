@@ -173,7 +173,12 @@ struct geometry_difference_t
     int right;
     int bottom;
     int top;
+
+    geometry_difference_t& subtract_if(uint32_t tiled_edges, geometry_difference_t delta);
 };
+
+// Allow printing a geometry_difference_t.
+std::ostream& operator <<(std::ostream& stream, geometry_difference_t const& geometry_difference);
 
 /**
  * Add a geometry_difference_t to a geometry_t.
@@ -224,16 +229,30 @@ inline geometry_t expand_geometry_if(geometry_t geometry_in,
 }
 
 /**
- *
+ * Return a geometry with edges from tiled_edge_rect or rect respectively, as function of tiled_edges.
  */
-inline rectangle_t geometry_switch_if(uint32_t tiled_edges, rectangle_t const& g1, rectangle_t const& g0)
+inline rectangle_t geometry_switch_if(uint32_t tiled_edges, rectangle_t const& tiled_edge_rect,
+    rectangle_t const& rect)
 {
     return {
-        (tiled_edges & WLR_EDGE_LEFT) ? g1.x1 : g0.x1,
-        (tiled_edges & WLR_EDGE_TOP) ? g1.y1 : g0.y1,
-        (tiled_edges & WLR_EDGE_RIGHT) ? g1.x2 : g0.x2,
-        (tiled_edges & WLR_EDGE_BOTTOM) ? g1.y2 : g0.y2
+        (tiled_edges & WLR_EDGE_LEFT) ? tiled_edge_rect.x1 : rect.x1,
+        (tiled_edges & WLR_EDGE_TOP) ? tiled_edge_rect.y1 : rect.y1,
+        (tiled_edges & WLR_EDGE_RIGHT) ? tiled_edge_rect.x2 : rect.x2,
+        (tiled_edges & WLR_EDGE_BOTTOM) ? tiled_edge_rect.y2 : rect.y2
     };
+}
+
+/**
+ * Conditionally subtract another geometry_difference_t, as function of tiled_edges.
+ */
+inline geometry_difference_t& geometry_difference_t::subtract_if(uint32_t tiled_edges,
+    geometry_difference_t delta)
+{
+    left   -= (tiled_edges & WLR_EDGE_LEFT) ? delta.left : 0;
+    right  -= (tiled_edges & WLR_EDGE_RIGHT) ? delta.right : 0;
+    bottom -= (tiled_edges & WLR_EDGE_BOTTOM) ? delta.bottom : 0;
+    top    -= (tiled_edges & WLR_EDGE_TOP) ? delta.top : 0;
+    return *this;
 }
 
 /**
